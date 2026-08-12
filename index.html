@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Издательский Калькулятор 2026 — ИЯз РАН</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+  :root {
+    --navy:#1A3157; --navy-light:#243f6b; --navy-dark:#111e37;
+    --gold:#C9973A; --gold-light:#ddb05c; --gold-pale:#f5e8cf;
+    --cream:#F8F6F2; --cream-dark:#EDE9E1;
+    --ink:#1C1C1C; --ink-mid:#4a4a4a; --ink-soft:#7a7a7a; --ink-faint:#b0b0b0;
+    --border:#d8d3c9; --border-dark:#c4bdb0;
+    --success:#2d7a4f; --danger:#b03030;
+    --radius:4px; --radius-lg:8px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--cream);min-height:100vh;line-height:1.6}
+  .header{background:var(--navy);color:white;padding:0 32px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
+  .header-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-right:28px;white-space:nowrap}
+  .header-title{font-size:15px;font-weight:500;color:white;flex:1}
+  .header-badge{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--gold-light);letter-spacing:.06em}
+  .layout{display:flex;min-height:calc(100vh - 56px)}
+  .sidebar{width:220px;background:var(--navy-dark);flex-shrink:0;padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+  .nav-section{padding:0 16px;margin-bottom:24px}
+  .nav-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;padding:0 8px;margin-bottom:8px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;color:rgba(255,255,255,.65);font-size:13.5px;transition:background .15s,color .15s;user-select:none;border:none;background:none;width:100%;text-align:left}
+  .nav-item:hover{background:rgba(255,255,255,.07);color:white}
+  .nav-item.active{background:rgba(201,151,58,.18);color:var(--gold-light);font-weight:500}
+  .nav-icon{width:16px;text-align:center;opacity:.9;font-size:15px}
+  .main{flex:1;padding:32px 40px 60px;max-width:900px;min-width:0}
+  .page-header{margin-bottom:28px}
+  .page-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .page-title{font-size:22px;font-weight:500;color:var(--navy);line-height:1.25}
+  .page-sub{font-size:13px;color:var(--ink-soft);margin-top:4px}
+  .card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px}
+  .card-title{font-size:13px;font-weight:500;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .card-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--gold);border-radius:2px;flex-shrink:0}
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px}
+  input[type=text],input[type=number],select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;transition:border-color .15s;appearance:none;-webkit-appearance:none}
+  input:focus,select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,49,87,.08)}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .computed-block{background:var(--navy);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-top:12px}
+  .computed-block .label-c{font-size:12px;color:rgba(255,255,255,.55)}
+  .computed-block .value-c{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:500;color:var(--gold)}
+  .computed-block .unit-c{font-size:12px;color:rgba(255,255,255,.4)}
+  .services-table{width:100%;border-collapse:collapse}
+  .services-table thead th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+  .services-table tbody tr{border-bottom:1px solid var(--cream-dark)}
+  .services-table tbody tr:last-child{border-bottom:none}
+  .services-table tbody td{padding:8px;vertical-align:middle}
+  .svc-name{font-size:13.5px}
+  .svc-rate-hint{font-size:11px;color:var(--ink-faint);margin-top:1px}
+  .svc-input-sm{padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%}
+  .svc-input-sm:focus{outline:none;border-color:var(--navy)}
+  .custom-check{width:16px;height:16px;border:1.5px solid var(--border-dark);border-radius:3px;cursor:pointer;appearance:none;-webkit-appearance:none;flex-shrink:0;transition:background .1s,border-color .1s}
+  .custom-check:checked{background:var(--navy);border-color:var(--navy);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center}
+  .result-table{width:100%;border-collapse:collapse;font-size:13px}
+  .result-table thead th{background:var(--navy);color:rgba(255,255,255,.75);font-size:11px;font-weight:500;letter-spacing:.04em;padding:9px 12px;text-align:left;white-space:nowrap}
+  .result-table thead th:first-child{border-radius:var(--radius) 0 0 0}
+  .result-table thead th:last-child{border-radius:0 var(--radius) 0 0}
+  .result-table tbody tr{border-bottom:1px solid var(--cream-dark)}
+  .result-table tbody tr:hover{background:var(--cream)}
+  .result-table tbody td{padding:9px 12px;vertical-align:middle}
+  .result-table tfoot td{padding:10px 12px;background:var(--gold-pale);font-weight:500;border-top:2px solid var(--gold);font-size:13.5px}
+  .num{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+  .net-col{color:var(--navy)}
+  .gross-col{color:var(--success);font-weight:500}
+  .editable-cell{padding:4px 6px;border:1px solid transparent;border-radius:3px;cursor:default;transition:border-color .15s,background .15s;min-width:80px;display:inline-block;text-align:right}
+  .edit-mode .editable-cell{border-color:var(--border);background:white;cursor:text}
+  .editable-cell:focus{outline:none;border-color:var(--navy);background:white}
+  .metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  .metric-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px}
+  .metric-card.primary{background:var(--navy);border-color:var(--navy)}
+  .metric-label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .metric-card.primary .metric-label{color:rgba(255,255,255,.5)}
+  .metric-value{font-size:26px;font-weight:500;font-family:'IBM Plex Mono',monospace;color:var(--navy)}
+  .metric-card.primary .metric-value{color:var(--gold)}
+  .metric-sub{font-size:11px;color:var(--ink-faint);margin-top:2px}
+  .metric-card.primary .metric-sub{color:rgba(255,255,255,.35)}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s;font-weight:400;line-height:1}
+  .btn-primary{background:var(--navy);color:white;border-color:var(--navy)}
+  .btn-primary:hover{background:var(--navy-light)}
+  .btn-gold{background:var(--gold);color:white;border-color:var(--gold)}
+  .btn-gold:hover{background:var(--gold-light)}
+  .btn-outline{background:white;color:var(--ink);border-color:var(--border-dark)}
+  .btn-outline:hover{background:var(--cream);border-color:var(--ink-soft)}
+  .btn-ghost{background:none;color:var(--ink-soft);border-color:transparent}
+  .btn-ghost:hover{background:var(--cream-dark);color:var(--ink)}
+  .btn-danger{background:none;color:var(--danger);border-color:var(--danger)}
+  .btn-danger:hover{background:#fdf0f0}
+  .btn-sm{padding:5px 12px;font-size:12.5px}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+  .tariff-table{width:100%;border-collapse:collapse}
+  .tariff-table thead th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);padding:6px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+  .tariff-table tbody tr{border-bottom:1px solid var(--cream-dark)}
+  .tariff-table tbody tr:last-child{border-bottom:none}
+  .tariff-table tbody td{padding:8px 10px;vertical-align:middle}
+  .t-input{padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%}
+  .t-input:focus{outline:none;border-color:var(--navy)}
+  .exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  .exec-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+  .exec-name{font-size:13px;font-weight:500;color:var(--navy);margin-bottom:4px}
+  .exec-items{font-size:11px;color:var(--ink-soft);margin-bottom:6px}
+  .exec-amount{font-family:'IBM Plex Mono',monospace;font-size:13px}
+  .history-item{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px}
+  .history-item .h-title{font-size:13.5px;font-weight:500;flex:1}
+  .history-item .h-meta{font-size:12px;color:var(--ink-soft)}
+  .history-item .h-amount{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--navy);font-weight:500}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+  .empty-icon{font-size:48px;opacity:.2;margin-bottom:12px}
+  .empty-text{font-size:14px}
+  .info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--cream-dark);font-size:13px}
+  .info-row:last-child{border-bottom:none}
+  .info-key{color:var(--ink-soft)}
+  .page{display:none}
+  .page.active{display:block}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 20px;border-radius:var(--radius);font-size:13.5px;border-left:3px solid var(--gold);z-index:9999;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .note-tag{font-size:11px;color:var(--ink-soft);background:var(--cream-dark);border-radius:3px;padding:2px 7px;display:inline-block}
+  .tax-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px}
+  .tax-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--cream-dark);font-size:13.5px}
+  .tax-row:last-child{border-bottom:none}
+  .tax-row.total{font-weight:500;font-size:14.5px;padding-top:12px;margin-top:4px;border-top:2px solid var(--gold);border-bottom:none}
+  .tax-row.total .tax-val{color:var(--success);font-family:'IBM Plex Mono',monospace;font-size:16px}
+  .tax-val{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--navy)}
+  .tax-note{font-size:11px;color:var(--ink-faint);margin-left:8px}
+  .mode-pill{display:inline-flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:4px}
+  .mode-pill button{padding:7px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;border:none;background:white;cursor:pointer;color:var(--ink-soft);transition:background .15s,color .15s}
+  .mode-pill button.active{background:var(--navy);color:white}
+  .tax-rates-row{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .tax-rate-field{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)}
+  .tax-rate-field input{width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);text-align:right}
+  .tax-rate-field input:focus{outline:none;border-color:var(--navy)}
+  @media(max-width:720px){.sidebar{display:none}.main{padding:20px 16px 40px}.grid2,.grid3{grid-template-columns:1fr}.metrics-row{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">ИЯз РАН</div>
+  <div style="width:1px;height:24px;background:rgba(255,255,255,.15);margin-right:20px"></div>
+  <div class="header-title">Издательский Калькулятор 2026</div>
+  <div class="header-badge">v2.2</div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-section">
+      <div class="nav-section-label">Расчёт</div>
+      <button class="nav-item active" onclick="showPage('calc')"><span class="nav-icon">✦</span> Новый проект</button>
+      <button class="nav-item" onclick="showPage('result')"><span class="nav-icon">◈</span> Результат</button>
+      <button class="nav-item" onclick="showPage('history')"><span class="nav-icon">◷</span> История</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Настройки</div>
+      <button class="nav-item" onclick="showPage('tariffs')"><span class="nav-icon">⊟</span> Справочник тарифов</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- CALC PAGE -->
+    <div class="page active" id="page-calc">
+      <div class="page-header">
+        <div class="page-eyebrow">Издательский Калькулятор</div>
+        <div class="page-title">Новый расчёт</div>
+        <div class="page-sub">Заполните данные — стоимость рассчитается автоматически</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Данные издания</div>
+        <div class="grid2">
+          <div class="field"><label class="label">Название издания</label><input type="text" id="c-title" placeholder="Введите название"></div>
+          <div class="field"><label class="label">Автор(ы)</label><input type="text" id="c-author" placeholder="Фамилия И.О."></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="label">Год</label><input type="number" id="c-year" value="2026"></div>
+          <div class="field">
+            <label class="label">Режим расчёта</label>
+            <div class="mode-pill">
+              <button class="active" id="mode-btn-internal" onclick="setMode('internal')">Надбавки сотрудникам</button>
+              <button id="mode-btn-commercial" onclick="setMode('commercial')">Договор ГПХ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Объём издания</div>
+        <div class="grid2">
+          <div class="field"><label class="label">Знаков с пробелами (исходный текст)</label><input type="number" id="c-chars" value="0" oninput="calcSheets()"></div>
+          <div class="field"><label class="label">Количество полос вёрстки (страниц)</label><input type="number" id="c-pages" value="0"></div>
+        </div>
+        <div class="computed-block">
+          <div>
+            <div class="label-c">Условных печатных листов</div>
+            <div class="value-c" id="sheets-val">0.00</div>
+          </div>
+          <div style="margin-left:auto">
+            <div class="unit-c">1 у.п.л. = 28 800 знаков с пробелами</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Коэффициент сложности</div>
+        <div style="max-width:260px">
+          <div class="field">
+            <label class="label">Сложность (1.0–1.5)</label>
+            <input type="number" id="c-complexity" value="1.0" step="0.1" min="1" max="1.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Выбор услуг и исполнителей</div>
+        <table class="services-table">
+          <thead>
+            <tr>
+              <th style="width:28px"></th>
+              <th>Услуга</th>
+              <th style="width:160px">Исполнитель</th>
+              <th style="width:75px">Коэф.</th>
+              <th style="width:120px">Ставка, ₽</th>
+            </tr>
+          </thead>
+          <tbody id="services-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" id="tax-settings-card">
+        <div class="card-title" id="tax-settings-title">Параметры расчёта налогов</div>
+        <div class="tax-rates-row">
+          <div class="tax-rate-field">
+            <span>НДФЛ</span>
+            <input type="number" id="c-ndfl" value="13" min="0" max="100" oninput="updateTaxPreview()">
+            <span>%</span>
+          </div>
+          <div class="tax-rate-field" id="insurance-field">
+            <span>Страховые взносы</span>
+            <input type="number" id="c-insurance" value="30" min="0" max="100" oninput="updateTaxPreview()">
+            <span>%</span>
+          </div>
+        </div>
+        <div style="margin-top:14px;background:var(--cream);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--ink-soft)" id="tax-formula-hint">
+          Вознаграждение = Сумма на руки ÷ (1 − НДФЛ%) · НДФЛ рассчитывается и удерживается из вознаграждения. Страховые взносы — сверху, за счёт заказчика.
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calculate()">Рассчитать стоимость →</button>
+        <button class="btn btn-outline" onclick="clearCalcForm()">Очистить форму</button>
+      </div>
+    </div>
+
+    <!-- RESULT PAGE -->
+    <div class="page" id="page-result">
+      <div class="page-header">
+        <div class="page-eyebrow">Итоговый расчёт</div>
+        <div class="page-title" id="r-title">—</div>
+        <div class="page-sub" id="r-sub">—</div>
+      </div>
+
+      <div id="result-empty" class="empty-state">
+        <div class="empty-icon">◈</div>
+        <div class="empty-text">Сначала выполните расчёт на странице «Новый проект»</div>
+      </div>
+
+      <div id="result-body" style="display:none">
+        <div class="metrics-row" id="r-metrics"></div>
+
+        <div class="card tax-card" id="r-tax-breakdown"></div>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between">
+            <div class="card-title" style="margin-bottom:12px">Детализация по услугам</div>
+            <div style="margin-bottom:12px;display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" id="edit-btn" onclick="toggleEdit()">✎ Редактировать</button>
+              <button class="btn btn-primary btn-sm" id="save-edit-btn" onclick="saveEdits()" style="display:none">✓ Сохранить изменения</button>
+              <button class="btn btn-ghost btn-sm" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Отмена</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="result-table" id="result-table-wrap">
+              <thead><tr id="r-thead"></tr></thead>
+              <tbody id="r-tbody"></tbody>
+              <tfoot id="r-tfoot"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Распределение по исполнителям</div>
+          <div class="exec-grid" id="r-executors"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Параметры расчёта</div>
+          <div id="r-params"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-gold" onclick="exportXLSX()">↓ Скачать Excel (.xlsx)</button>
+          <button class="btn btn-outline" onclick="exportCSV()">↓ Скачать CSV</button>
+          <button class="btn btn-outline" onclick="saveProject()">Сохранить в историю</button>
+          <button class="btn btn-ghost" onclick="showPage('calc')">← Назад к расчёту</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARIFFS PAGE -->
+    <div class="page" id="page-tariffs">
+      <div class="page-header">
+        <div class="page-eyebrow">Администрирование</div>
+        <div class="page-title">Справочник тарифов</div>
+        <div class="page-sub">Базовые ставки на руки исполнителю</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">Виды работ и ставки</div>
+          <button class="btn btn-outline btn-sm" onclick="addTariff()">+ Добавить</button>
+        </div>
+        <table class="tariff-table">
+          <thead>
+            <tr>
+              <th style="width:38%">Вид работы</th>
+              <th style="width:140px">Ставка на руки, ₽</th>
+              <th style="width:150px">База расчёта</th>
+              <th style="width:200px">Примечание</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="tariff-tbody"></tbody>
+        </table>
+        <div style="margin-top:14px">
+          <button class="btn btn-outline btn-sm" onclick="saveTariffs()">Сохранить тарифы</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Параметры налогов и взносов</div>
+        <div class="grid2">
+          <div class="field">
+            <label class="label">Налоги и взносы по умолчанию, %</label>
+            <input type="number" id="t-bonus" value="20" min="0">
+          </div>
+          <div class="field">
+            <label class="label">Минимальный процент, %</label>
+            <input type="number" id="t-min-bonus" value="15" min="0">
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-soft)">Формула: Сумма с учётом налогов = Чистыми × (1 + % / 100)</div>
+        <div style="margin-top:12px"><button class="btn btn-outline btn-sm" onclick="saveBonusSettings()">Сохранить</button></div>
+      </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div class="page-eyebrow">Архив</div>
+        <div class="page-title">История расчётов</div>
+        <div class="page-sub">Сохранённые проекты (хранятся в браузере)</div>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEETS_CHARS = 28800;
+let lastResult = null;
+let editBackup = null;
+let currentMode = 'internal'; // 'internal' | 'commercial'
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-btn-internal').classList.toggle('active', mode==='internal');
+  document.getElementById('mode-btn-commercial').classList.toggle('active', mode==='commercial');
+  // show/hide insurance field
+  document.getElementById('insurance-field').style.display = mode==='commercial' ? '' : 'none';
+  // update hint text
+  const hint = document.getElementById('tax-formula-hint');
+  if(mode==='internal') {
+    hint.textContent = 'Вознаграждение = Сумма на руки ÷ (1 − НДФЛ%). НДФЛ удерживается из вознаграждения. Страховые взносы не рассчитываются.';
+    document.getElementById('tax-settings-title').textContent = 'Параметры НДФЛ (служебная доплата)';
+  } else {
+    hint.textContent = 'Вознаграждение = Сумма на руки ÷ (1 − НДФЛ%). Страховые взносы — сверху вознаграждения, за счёт заказчика. Стоимость договора = Вознаграждение + Страховые взносы.';
+    document.getElementById('tax-settings-title').textContent = 'Параметры налогов и взносов (договор ГПХ)';
+  }
+}
+
+function calcTaxBreakdown(totalNet, ndfl, insurance, mode) {
+  // totalNet = сумма на руки (чистыми) по всем услугам
+  const T = ndfl / 100;
+  const S = insurance / 100;
+  const remuneration = totalNet / (1 - T);       // вознаграждение до НДФЛ
+  const ndflAmount = remuneration * T;            // НДФЛ
+  const insuranceAmount = mode==='commercial' ? remuneration * S : 0;
+  const contractCost = mode==='commercial' ? remuneration + insuranceAmount : 0;
+  return { remuneration, ndflAmount, insuranceAmount, contractCost };
+}
+
+const defaultTariffs = [
+  {id:1, name:'Редактирование (лит. + стилист. + терминология)', rate:1500, type:'text', note:'Базовая ставка'},
+  {id:2, name:'Ведущий редактор (проектная работа + координация)', rate:15000, type:'fixed', note:'Диапазон 12 000–18 000 ₽, в зависимости от сложности'},
+  {id:3, name:'Корректура (однократная)', rate:600, type:'text', note:''},
+  {id:4, name:'Корректура (двойная)', rate:1200, type:'text', note:''},
+  {id:5, name:'Техническое редактирование', rate:525, type:'text', note:'Приплюсовывается к редактированию; диапазон 500–550 ₽'},
+  {id:6, name:'Верстка (простая / средняя сложность)', rate:90, type:'pages', note:'Диапазон 80–100 ₽/стр.'},
+  {id:7, name:'Научное редактирование', rate:2500, type:'text', note:'Рыночные цены значительно выше'},
+  {id:8, name:'Дизайн обложки', rate:4500, type:'fixed', note:'Диапазон 3 000–6 000 ₽'},
+  {id:9, name:'Доп. надбавка за финальную проверку качества', rate:3500, type:'fixed', note:'Опционально; диапазон 2 000–5 000 ₽'},
+];
+
+function loadTariffs() {
+  const s = localStorage.getItem('izdat_tariffs_v2');
+  return s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaultTariffs));
+}
+
+function saveTariffsToStorage(arr) {
+  localStorage.setItem('izdat_tariffs_v2', JSON.stringify(arr));
+}
+
+let tariffs = loadTariffs();
+
+function rub(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
+
+/* --- NAVIGATION --- */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach((b,i) => b.classList.toggle('active', ['calc','result','history','tariffs'][i]===name));
+  if(name==='tariffs') renderTariffsPage();
+  if(name==='history') renderHistory();
+  if(name==='result' && lastResult) renderResult(lastResult);
+}
+
+/* --- SHEETS --- */
+function calcSheets() {
+  const chars = parseInt(document.getElementById('c-chars').value) || 0;
+  document.getElementById('sheets-val').textContent = (chars / SHEETS_CHARS).toFixed(2);
+}
+
+/* --- SERVICES --- */
+function renderServicesList() {
+  tariffs = loadTariffs();
+  const tbody = document.getElementById('services-tbody');
+  tbody.innerHTML = '';
+  tariffs.forEach(t => {
+    const unitHint = t.type==='text' ? '/ у.п.л.' : t.type==='pages' ? '/ стр.' : '(фикс.)';
+    const tr = document.createElement('tr');
+    tr.dataset.id = t.id;
+    tr.innerHTML = `
+      <td><input type="checkbox" class="custom-check svc-check" data-id="${t.id}"></td>
+      <td>
+        <div class="svc-name">${t.name}</div>
+        <div class="svc-rate-hint">${t.rate.toLocaleString('ru-RU')} ₽ ${unitHint}${t.note ? ' · ' + t.note : ''}</div>
+      </td>
+      <td><input class="svc-input-sm svc-executor" placeholder="Исполнитель"></td>
+      <td><input class="svc-input-sm svc-coeff" type="number" value="1.0" step="0.1" min="0.5" max="3" style="text-align:right"></td>
+      <td><input class="svc-input-sm svc-rate" type="number" value="${t.rate}" style="text-align:right"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* --- CALCULATE --- */
+function calculate() {
+  tariffs = loadTariffs();
+  const chars = parseInt(document.getElementById('c-chars').value) || 0;
+  const pages = parseInt(document.getElementById('c-pages').value) || 0;
+  const sheets = chars / SHEETS_CHARS;
+  const complexity = parseFloat(document.getElementById('c-complexity').value) || 1;
+  const mode = currentMode;
+  const ndfl = parseFloat(document.getElementById('c-ndfl').value) || 13;
+  const insurance = parseFloat(document.getElementById('c-insurance').value) || 30;
+  const title = document.getElementById('c-title').value.trim() || '(без названия)';
+  const author = document.getElementById('c-author').value.trim() || '';
+  const year = document.getElementById('c-year').value || '2026';
+
+  const checks = document.querySelectorAll('.svc-check:checked');
+  if(!checks.length) { showToast('Выберите хотя бы одну услугу'); return; }
+
+  const rows = [];
+  let totalNet = 0;
+  const executors = {};
+
+  checks.forEach(chk => {
+    const id = parseInt(chk.dataset.id);
+    const t = tariffs.find(x => x.id === id);
+    if(!t) return;
+    const row = chk.closest('tr');
+    const executor = row.querySelector('.svc-executor').value.trim() || '—';
+    const coeff = parseFloat(row.querySelector('.svc-coeff').value) || 1;
+    const rate = parseFloat(row.querySelector('.svc-rate').value) || t.rate;
+
+    let qty, unit;
+    if(t.type==='text') { qty = sheets; unit = 'у.п.л.'; }
+    else if(t.type==='pages') { qty = pages || 1; unit = 'стр.'; }
+    else { qty = 1; unit = 'проект'; }
+
+    const effectiveRate = rate * coeff * complexity;
+    const net = t.type==='fixed' ? rate * coeff * complexity : effectiveRate * qty;
+
+    totalNet += net;
+
+    if(!executors[executor]) executors[executor] = {net:0, items:[]};
+    executors[executor].net += net;
+    executors[executor].items.push(t.name);
+
+    rows.push({
+      name: t.name,
+      qty: parseFloat(qty.toFixed(2)),
+      unit,
+      rate: Math.round(effectiveRate),
+      net: Math.round(net),
+      executor
+    });
+  });
+
+  // tax breakdown on the TOTAL
+  const tax = calcTaxBreakdown(totalNet, ndfl, insurance, mode);
+
+  lastResult = {
+    title, author, year, mode, chars, sheets, pages, complexity,
+    ndfl, insurance,
+    rows,
+    totalNet: Math.round(totalNet),
+    tax: {
+      remuneration: tax.remuneration,
+      ndflAmount: tax.ndflAmount,
+      insuranceAmount: tax.insuranceAmount,
+      contractCost: tax.contractCost
+    },
+    executors,
+    date: new Date().toLocaleString('ru-RU')
+  };
+  localStorage.setItem('izdat_last_result', JSON.stringify(lastResult));
+  showPage('result');
+}
+
+/* --- RENDER RESULT --- */
+function renderResult(d) {
+  const empty = document.getElementById('result-empty');
+  const body = document.getElementById('result-body');
+  if(!d) { empty.style.display=''; body.style.display='none'; return; }
+  empty.style.display='none'; body.style.display='';
+
+  const isCommercial = d.mode === 'commercial';
+  const modeLabel = isCommercial ? 'Договор ГПХ' : 'Надбавки сотрудникам';
+  document.getElementById('r-title').textContent = d.title;
+  document.getElementById('r-sub').textContent = `${d.author ? d.author + ', ' : ''}${d.year} · ${modeLabel}`;
+
+  // recalc tax from stored rates in case d.tax missing (old saves)
+  const tax = d.tax || calcTaxBreakdown(d.totalNet, d.ndfl||13, d.insurance||30, d.mode);
+
+  // METRIC CARDS — differ by mode
+  if(isCommercial) {
+    document.getElementById('r-metrics').innerHTML = `
+      <div class="metric-card primary">
+        <div class="metric-label">Стоимость договора ГПХ (все расходы заказчика)</div>
+        <div class="metric-value">${fmt(tax.contractCost)} ₽</div>
+        <div class="metric-sub">Вознаграждение + страховые взносы</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Сумма на руки исполнителю</div>
+        <div class="metric-value">${d.totalNet.toLocaleString('ru-RU')} ₽</div>
+        <div class="metric-sub">${d.sheets.toFixed(2)} у.п.л. · коэф. ${d.complexity}</div>
+      </div>
+    `;
+  } else {
+    document.getElementById('r-metrics').innerHTML = `
+      <div class="metric-card primary">
+        <div class="metric-label">Вознаграждение (до удержания НДФЛ)</div>
+        <div class="metric-value">${fmt(tax.remuneration)} ₽</div>
+        <div class="metric-sub">Указывается в служебной записке</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Сумма на руки сотруднику</div>
+        <div class="metric-value">${d.totalNet.toLocaleString('ru-RU')} ₽</div>
+        <div class="metric-sub">${d.sheets.toFixed(2)} у.п.л. · коэф. ${d.complexity}</div>
+      </div>
+    `;
+  }
+
+  // TAX BREAKDOWN CARD
+  const taxEl = document.getElementById('r-tax-breakdown');
+  if(isCommercial) {
+    taxEl.style.display = '';
+    taxEl.innerHTML = `
+      <div class="card-title">Расчёт по договору ГПХ</div>
+      <div class="tax-row"><span>Сумма на руки исполнителю</span><span class="tax-val">${d.totalNet.toLocaleString('ru-RU')} ₽</span></div>
+      <div class="tax-row">
+        <span>Вознаграждение по договору <span class="tax-note">= на руки ÷ (1 − ${d.ndfl||13}%)</span></span>
+        <span class="tax-val">${fmt(tax.remuneration)} ₽</span>
+      </div>
+      <div class="tax-row">
+        <span>НДФЛ ${d.ndfl||13}% <span class="tax-note">удерживается из вознаграждения</span></span>
+        <span class="tax-val">${fmt(tax.ndflAmount)} ₽</span>
+      </div>
+      <div class="tax-row">
+        <span>Страховые взносы ${d.insurance||30}% <span class="tax-note">сверху, расходы заказчика</span></span>
+        <span class="tax-val">${fmt(tax.insuranceAmount)} ₽</span>
+      </div>
+      <div class="tax-row total">
+        <span>Стоимость договора (все расходы заказчика)</span>
+        <span class="tax-val">${fmt(tax.contractCost)} ₽</span>
+      </div>
+    `;
+  } else {
+    taxEl.style.display = '';
+    taxEl.innerHTML = `
+      <div class="card-title">Расчёт для служебной записки</div>
+      <div class="tax-row"><span>Сумма на руки сотруднику</span><span class="tax-val">${d.totalNet.toLocaleString('ru-RU')} ₽</span></div>
+      <div class="tax-row">
+        <span>Вознаграждение (доплата) <span class="tax-note">= на руки ÷ (1 − ${d.ndfl||13}%)</span></span>
+        <span class="tax-val">${fmt(tax.remuneration)} ₽</span>
+      </div>
+      <div class="tax-row total">
+        <span>НДФЛ ${d.ndfl||13}% <span class="tax-note">удерживается из вознаграждения</span></span>
+        <span class="tax-val">${fmt(tax.ndflAmount)} ₽</span>
+      </div>
+    `;
+  }
+
+  // SERVICES TABLE
+  document.getElementById('r-thead').innerHTML = `
+    <th>Услуга</th>
+    <th>Объём</th>
+    <th class="num">Ставка, ₽</th>
+    <th class="num net-col">На руки, ₽</th>
+    <th>Исполнитель</th>
+  `;
+
+  const tbody = document.getElementById('r-tbody');
+  tbody.innerHTML = '';
+  d.rows.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    tr.dataset.idx = idx;
+    tr.innerHTML = `
+      <td>${r.name}</td>
+      <td style="color:var(--ink-soft);font-size:12.5px">${r.qty} ${r.unit}</td>
+      <td class="num" style="color:var(--ink-soft)">${r.rate.toLocaleString('ru-RU')}</td>
+      <td class="num net-col"><span class="editable-cell" data-field="net" data-idx="${idx}" contenteditable="false">${r.net.toLocaleString('ru-RU')}</span></td>
+      <td><span class="editable-cell" data-field="executor" data-idx="${idx}" contenteditable="false" style="text-align:left;color:var(--ink-soft);font-size:12.5px">${r.executor}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderTotals(d);
+  renderExecutors(d);
+
+  const modeL = isCommercial ? 'Договор ГПХ (внешний исполнитель)' : 'Надбавки сотрудникам';
+  document.getElementById('r-params').innerHTML = `
+    <div class="info-row"><span class="info-key">Режим</span><span>${modeL}</span></div>
+    <div class="info-row"><span class="info-key">Объём текста</span><span>${d.chars.toLocaleString('ru-RU')} знаков / ${d.sheets.toFixed(2)} у.п.л.</span></div>
+    <div class="info-row"><span class="info-key">Страниц вёрстки</span><span>${d.pages}</span></div>
+    <div class="info-row"><span class="info-key">НДФЛ</span><span>${d.ndfl||13}%</span></div>
+    ${isCommercial ? `<div class="info-row"><span class="info-key">Страховые взносы</span><span>${d.insurance||30}%</span></div>` : ''}
+    <div class="info-row"><span class="info-key">Коэффициент сложности</span><span>${d.complexity}</span></div>
+    <div class="info-row"><span class="info-key">Дата расчёта</span><span>${d.date}</span></div>
+  `;
+
+  // reset edit state
+  document.getElementById('result-table-wrap').classList.remove('edit-mode');
+  document.getElementById('edit-btn').style.display = '';
+  document.getElementById('save-edit-btn').style.display = 'none';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+}
+
+function fmt(n) {
+  return Math.round(n * 100) / 100 === Math.round(n)
+    ? Math.round(n).toLocaleString('ru-RU')
+    : n.toFixed(2).replace('.', ',');
+}
+
+function renderTotals(d) {
+  const totalNet = d.rows.reduce((s,r)=>s+r.net,0);
+  document.getElementById('r-tfoot').innerHTML = `
+    <tr>
+      <td colspan="3">Итого на руки</td>
+      <td class="num">${totalNet.toLocaleString('ru-RU')} ₽</td>
+      <td></td>
+    </tr>
+  `;
+}
+
+function renderExecutors(d) {
+  const execEl = document.getElementById('r-executors');
+  execEl.innerHTML = '';
+  const exMap = {};
+  d.rows.forEach(r => {
+    const e = r.executor || '—';
+    if(!exMap[e]) exMap[e] = {net:0, items:[]};
+    exMap[e].net += r.net;
+    exMap[e].items.push(r.name);
+  });
+  Object.entries(exMap).forEach(([name,info]) => {
+    const div = document.createElement('div');
+    div.className = 'exec-card';
+    div.innerHTML = `
+      <div class="exec-name">${name}</div>
+      <div class="exec-items">${info.items.join(', ')}</div>
+      <div class="exec-amount"><span style="color:var(--navy)">${Math.round(info.net).toLocaleString('ru-RU')} ₽</span> <span style="color:var(--ink-faint);font-size:11px">на руки</span></div>
+    `;
+    execEl.appendChild(div);
+  });
+}
+
+/* --- EDIT MODE --- */
+function toggleEdit() {
+  editBackup = JSON.parse(JSON.stringify(lastResult.rows));
+  document.getElementById('result-table-wrap').classList.add('edit-mode');
+  document.querySelectorAll('.editable-cell').forEach(c => c.setAttribute('contenteditable','true'));
+  document.getElementById('edit-btn').style.display = 'none';
+  document.getElementById('save-edit-btn').style.display = '';
+  document.getElementById('cancel-edit-btn').style.display = '';
+  showToast('Редактирование включено — кликните по числу');
+}
+
+function saveEdits() {
+  document.querySelectorAll('.editable-cell').forEach(c => {
+    const idx = parseInt(c.dataset.idx);
+    const field = c.dataset.field;
+    const raw = c.textContent.replace(/\s/g,'').replace(/₽/g,'').replace(/,/g,'').replace(/\u00a0/g,'');
+    const val = parseFloat(raw);
+    if(field === 'executor') {
+      lastResult.rows[idx].executor = c.textContent.trim();
+    } else if(!isNaN(val)) {
+      lastResult.rows[idx][field] = Math.round(val);
+    }
+    c.setAttribute('contenteditable','false');
+  });
+  // sync totals and recalc tax breakdown
+  lastResult.totalNet = lastResult.rows.reduce((s,r)=>s+r.net,0);
+  lastResult.tax = calcTaxBreakdown(lastResult.totalNet, lastResult.ndfl||13, lastResult.insurance||30, lastResult.mode);
+  localStorage.setItem('izdat_last_result', JSON.stringify(lastResult));
+  document.getElementById('result-table-wrap').classList.remove('edit-mode');
+  document.getElementById('edit-btn').style.display = '';
+  document.getElementById('save-edit-btn').style.display = 'none';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+  // re-render tbody cells cleanly
+  renderResult(lastResult);
+  showToast('Изменения сохранены');
+}
+
+function cancelEdit() {
+  lastResult.rows = editBackup;
+  renderResult(lastResult);
+}
+
+/* --- TARIFFS PAGE --- */
+function renderTariffsPage() {
+  tariffs = loadTariffs();
+  const tbody = document.getElementById('tariff-tbody');
+  tbody.innerHTML = '';
+  tariffs.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = t.id;
+    tr.innerHTML = `
+      <td><input class="t-input t-name" value="${t.name}"></td>
+      <td><input class="t-input t-rate" type="number" value="${t.rate}" style="text-align:right"></td>
+      <td>
+        <select class="t-input t-type">
+          <option value="text" ${t.type==='text'?'selected':''}>По знакам (у.п.л.)</option>
+          <option value="pages" ${t.type==='pages'?'selected':''}>По полосам (стр.)</option>
+          <option value="fixed" ${t.type==='fixed'?'selected':''}>Фикс. сумма</option>
+        </select>
+      </td>
+      <td><input class="t-input t-note" value="${t.note||''}" placeholder="—"></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTariff(${t.id})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveTariffs() {
+  const rows = document.querySelectorAll('#tariff-tbody tr');
+  const arr = [];
+  rows.forEach(r => {
+    arr.push({
+      id: parseInt(r.dataset.id),
+      name: r.querySelector('.t-name').value,
+      rate: parseFloat(r.querySelector('.t-rate').value) || 0,
+      type: r.querySelector('.t-type').value,
+      note: r.querySelector('.t-note').value,
+    });
+  });
+  saveTariffsToStorage(arr);
+  tariffs = arr;
+  renderServicesList();
+  showToast('Тарифы сохранены');
+}
+
+function addTariff() {
+  tariffs.push({id:Date.now(), name:'Новая услуга', rate:0, type:'text', note:''});
+  saveTariffsToStorage(tariffs);
+  renderTariffsPage();
+  renderServicesList();
+}
+
+function deleteTariff(id) {
+  tariffs = tariffs.filter(t => t.id !== id);
+  saveTariffsToStorage(tariffs);
+  renderTariffsPage();
+  renderServicesList();
+}
+
+function saveBonusSettings() {
+  showToast('Параметры сохранены');
+}
+
+/* --- HISTORY --- */
+function renderHistory() {
+  const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
+  const el = document.getElementById('history-list');
+  if(!hist.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">◷</div><div class="empty-text">История расчётов пуста</div></div>`;
+    return;
+  }
+  el.innerHTML = hist.map((d,i) => `
+    <div class="history-item">
+      <div>
+        <div class="h-title">${d.title}</div>
+        <div class="h-meta">${d.author ? d.author+' · ':'' }${d.year} · сохранено ${d.savedAt}</div>
+      </div>
+      <div class="h-amount">${(d.totalGross||d.totalNet||0).toLocaleString('ru-RU')} ₽</div>
+      <button class="btn btn-outline btn-sm" onclick="loadHistory(${i})">Открыть</button>
+    </div>
+  `).join('');
+}
+
+function loadHistory(i) {
+  const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
+  lastResult = hist[i];
+  showPage('result');
+}
+
+function saveProject() {
+  if(!lastResult) return;
+  const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
+  hist.unshift({...lastResult, savedAt: new Date().toLocaleString('ru-RU')});
+  localStorage.setItem('izdat_history', JSON.stringify(hist.slice(0,30)));
+  showToast('Проект сохранён в историю');
+}
+
+/* --- MISC --- */
+function clearCalcForm() {
+  document.getElementById('c-title').value='';
+  document.getElementById('c-author').value='';
+  document.getElementById('c-chars').value='0';
+  document.getElementById('c-pages').value='0';
+  document.getElementById('sheets-val').textContent='0.00';
+  document.querySelectorAll('.svc-check').forEach(c=>c.checked=false);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+function updateTaxPreview() { /* live preview could be added later */ }
+
+/* --- EXPORT --- */
+function exportXLSX() {
+  if(!lastResult) { showToast('Нет данных для экспорта'); return; }
+  const d = lastResult;
+  const isCommercial = d.mode === 'commercial';
+  const tax = d.tax || calcTaxBreakdown(d.totalNet, d.ndfl||13, d.insurance||30, d.mode);
+  const modeLabel = isCommercial ? 'Договор ГПХ' : 'Надбавки сотрудникам';
+
+  const WB = XLSX.utils.book_new();
+
+  // ── ЛИСТ 1: ИТОГОВЫЙ РАСЧЁТ ──
+  const rows = [];
+
+  // Шапка проекта
+  rows.push(['ИЗДАТЕЛЬСКИЙ КАЛЬКУЛЯТОР 2026 — ИЯз РАН']);
+  rows.push([]);
+  rows.push(['Издание:', d.title]);
+  rows.push(['Автор(ы):', d.author || '—']);
+  rows.push(['Год:', d.year]);
+  rows.push(['Режим:', modeLabel]);
+  rows.push(['Объём текста:', `${(d.chars||0).toLocaleString('ru-RU')} знаков / ${(d.sheets||0).toFixed(2)} у.п.л.`]);
+  rows.push(['Страниц вёрстки:', d.pages || 0]);
+  rows.push(['Коэффициент сложности:', d.complexity]);
+  rows.push(['Дата расчёта:', d.date]);
+  rows.push([]);
+
+  // Услуги — заголовок
+  rows.push(['Услуга', 'Объём', 'Ед. изм.', 'Ставка, ₽', 'Сумма на руки, ₽', 'Исполнитель']);
+  const svcHeaderRow = rows.length; // для стилей
+
+  // Услуги — данные
+  d.rows.forEach(r => {
+    rows.push([r.name, r.qty, r.unit, r.rate, r.net, r.executor]);
+  });
+
+  // Итого по услугам
+  const totalNet = d.rows.reduce((s,r)=>s+r.net, 0);
+  rows.push(['ИТОГО НА РУКИ', '', '', '', totalNet, '']);
+  rows.push([]);
+
+  // Налоговый расчёт
+  if(isCommercial) {
+    rows.push(['РАСЧЁТ ПО ДОГОВОРУ ГПХ']);
+    rows.push(['Сумма на руки исполнителю', '', '', '', d.totalNet]);
+    rows.push([`Вознаграждение по договору (на руки ÷ (1 − ${d.ndfl||13}%))`, '', '', '', Math.round(tax.remuneration)]);
+    rows.push([`НДФЛ ${d.ndfl||13}% (удерживается из вознаграждения)`, '', '', '', Math.round(tax.ndflAmount)]);
+    rows.push([`Страховые взносы ${d.insurance||30}% (сверху, расходы заказчика)`, '', '', '', Math.round(tax.insuranceAmount)]);
+    rows.push(['СТОИМОСТЬ ДОГОВОРА (все расходы заказчика)', '', '', '', Math.round(tax.contractCost)]);
+  } else {
+    rows.push(['РАСЧЁТ ДЛЯ СЛУЖЕБНОЙ ЗАПИСКИ']);
+    rows.push(['Сумма на руки сотруднику', '', '', '', d.totalNet]);
+    rows.push([`Вознаграждение (доплата) (на руки ÷ (1 − ${d.ndfl||13}%))`, '', '', '', Math.round(tax.remuneration)]);
+    rows.push([`НДФЛ ${d.ndfl||13}% (удерживается из вознаграждения)`, '', '', '', Math.round(tax.ndflAmount)]);
+  }
+  rows.push([]);
+
+  // Распределение по исполнителям
+  rows.push(['РАСПРЕДЕЛЕНИЕ ПО ИСПОЛНИТЕЛЯМ']);
+  rows.push(['Исполнитель', 'Услуги', '', '', 'Сумма на руки, ₽']);
+  const exMap = {};
+  d.rows.forEach(r => {
+    const e = r.executor || '—';
+    if(!exMap[e]) exMap[e] = {net:0, items:[]};
+    exMap[e].net += r.net;
+    exMap[e].items.push(r.name);
+  });
+  Object.entries(exMap).forEach(([name, info]) => {
+    rows.push([name, info.items.join(', '), '', '', Math.round(info.net)]);
+  });
+
+  const WS = XLSX.utils.aoa_to_sheet(rows);
+
+  // Ширина колонок
+  WS['!cols'] = [
+    {wch: 52}, {wch: 10}, {wch: 10}, {wch: 14}, {wch: 18}, {wch: 22}
+  ];
+
+  // Стили заголовков (только через sheet cells — SheetJS community не поддерживает полный cellStyle, но задаём числовой формат для сумм)
+  // Числовой формат для колонки E (суммы) — строки с данными услуг
+  const svcStart = svcHeaderRow + 1; // 1-indexed
+  for(let i = svcStart; i < svcStart + d.rows.length; i++) {
+    const addr = XLSX.utils.encode_cell({r: i, c: 4});
+    if(WS[addr]) WS[addr].t = 'n';
+  }
+
+  XLSX.utils.book_append_sheet(WB, WS, 'Расчёт');
+
+  // ── ЛИСТ 2: ТОЛЬКО УСЛУГИ (чистая таблица) ──
+  const svcRows = [
+    ['Услуга', 'Объём', 'Ед. изм.', 'Ставка, ₽', 'Сумма на руки, ₽', 'Исполнитель']
+  ];
+  d.rows.forEach(r => svcRows.push([r.name, r.qty, r.unit, r.rate, r.net, r.executor]));
+  svcRows.push(['Итого', '', '', '', totalNet, '']);
+
+  const WS2 = XLSX.utils.aoa_to_sheet(svcRows);
+  WS2['!cols'] = [{wch:52},{wch:10},{wch:10},{wch:14},{wch:18},{wch:22}];
+  XLSX.utils.book_append_sheet(WB, WS2, 'Услуги');
+
+  // Имя файла
+  const safeName = (d.title || 'raschet').replace(/[^а-яёa-z0-9_\- ]/gi, '').trim().replace(/\s+/g,'_').substring(0,40);
+  XLSX.writeFile(WB, `kalkulator_${safeName}.xlsx`);
+  showToast('Excel-файл скачан');
+}
+
+function exportCSV() {
+  if(!lastResult) { showToast('Нет данных для экспорта'); return; }
+  const d = lastResult;
+  const isCommercial = d.mode === 'commercial';
+  const tax = d.tax || calcTaxBreakdown(d.totalNet, d.ndfl||13, d.insurance||30, d.mode);
+  const modeLabel = isCommercial ? 'Договор ГПХ' : 'Надбавки сотрудникам';
+
+  const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+  const row = (...cols) => cols.map(esc).join(';');
+
+  let csv = '\uFEFF'; // BOM для корректного открытия в Excel
+  csv += row('ИЗДАТЕЛЬСКИЙ КАЛЬКУЛЯТОР 2026 — ИЯз РАН') + '\n\n';
+  csv += row('Издание', d.title) + '\n';
+  csv += row('Автор(ы)', d.author || '—') + '\n';
+  csv += row('Год', d.year) + '\n';
+  csv += row('Режим', modeLabel) + '\n';
+  csv += row('Объём', `${(d.chars||0).toLocaleString('ru-RU')} знаков / ${(d.sheets||0).toFixed(2)} у.п.л.`) + '\n';
+  csv += row('Дата расчёта', d.date) + '\n\n';
+
+  csv += row('Услуга','Объём','Ед. изм.','Ставка, ₽','Сумма на руки, ₽','Исполнитель') + '\n';
+  d.rows.forEach(r => {
+    csv += row(r.name, r.qty, r.unit, r.rate, r.net, r.executor) + '\n';
+  });
+  const totalNet = d.rows.reduce((s,r)=>s+r.net,0);
+  csv += row('ИТОГО НА РУКИ','','','',totalNet,'') + '\n\n';
+
+  if(isCommercial) {
+    csv += row('РАСЧЁТ ПО ДОГОВОРУ ГПХ') + '\n';
+    csv += row('Сумма на руки', d.totalNet) + '\n';
+    csv += row(`Вознаграждение (на руки ÷ (1 − ${d.ndfl||13}%))`, Math.round(tax.remuneration)) + '\n';
+    csv += row(`НДФЛ ${d.ndfl||13}%`, Math.round(tax.ndflAmount)) + '\n';
+    csv += row(`Страховые взносы ${d.insurance||30}%`, Math.round(tax.insuranceAmount)) + '\n';
+    csv += row('СТОИМОСТЬ ДОГОВОРА', Math.round(tax.contractCost)) + '\n';
+  } else {
+    csv += row('РАСЧЁТ ДЛЯ СЛУЖЕБНОЙ ЗАПИСКИ') + '\n';
+    csv += row('Сумма на руки', d.totalNet) + '\n';
+    csv += row(`Вознаграждение (на руки ÷ (1 − ${d.ndfl||13}%))`, Math.round(tax.remuneration)) + '\n';
+    csv += row(`НДФЛ ${d.ndfl||13}%`, Math.round(tax.ndflAmount)) + '\n';
+  }
+
+  const safeName = (d.title||'raschet').replace(/[^а-яёa-z0-9_\- ]/gi,'').trim().replace(/\s+/g,'_').substring(0,40);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kalkulator_${safeName}.csv`;
+  a.click();
+  showToast('CSV-файл скачан');
+}
+
+/* --- INIT --- */
+renderServicesList();
+setMode('internal'); // set default mode UI
+const savedResult = localStorage.getItem('izdat_last_result');
+if(savedResult) { try { lastResult = JSON.parse(savedResult); } catch(e){} }
+calcSheets();
+</script>
+</body>
+</html>
