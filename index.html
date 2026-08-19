@@ -51,17 +51,25 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .computed-block .label-c{font-size:11px;color:rgba(255,255,255,.55)}
 .computed-block .value-c{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:500;color:var(--gold)}
 .computed-block .unit-c{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
-/* services table */
+/* services table — двухстрочный layout */
 .services-table{width:100%;border-collapse:collapse}
-.services-table thead th{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;padding:7px 5px;text-align:left;border-bottom:1px solid var(--border);line-height:1.3}
-.services-table tbody tr{border-bottom:1px solid var(--cream-dark)}
-.services-table tbody tr:last-child{border-bottom:none}
-.services-table tbody td{padding:6px 5px;vertical-align:middle}
-.services-table tbody td:first-child{padding-left:20px}
-.services-table tbody td:last-child{padding-right:20px}
-.svc-name{font-size:13px;line-height:1.3}
-.svc-custom-name{padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);font-size:12.5px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%}
+.services-table thead th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.svc-head-row th{border-bottom:none;padding-bottom:4px}
+.svc-sub-head-row th{border-bottom:1px solid var(--border);padding-top:0}
+/* группа из двух строк на услугу */
+.svc-group{border-bottom:1px solid var(--cream-dark)}
+.svc-group:last-child{border-bottom:none}
+.svc-group tr{border-bottom:none}
+.svc-row1 td{padding:8px 10px 4px}
+.svc-row1 td:first-child{padding-left:16px;width:28px;vertical-align:middle}
+.svc-row2 td{padding:4px 10px 8px 44px;vertical-align:middle}
+.svc-row2-inner{display:grid;grid-template-columns:1fr 68px 68px 60px 90px 28px;gap:6px;align-items:center}
+.svc-row2-label{font-size:10px;color:var(--ink-faint);margin-bottom:2px;white-space:nowrap}
+.svc-name{font-size:13.5px;line-height:1.3;color:var(--ink)}
+.svc-custom-name{padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%}
 .svc-custom-name:focus{outline:none;border-color:var(--navy)}
+.svc-field{display:flex;flex-direction:column}
+.svc-field label{font-size:10px;color:var(--ink-faint);margin-bottom:2px;white-space:nowrap}
 .svc-input-sm{padding:5px 7px;border:1px solid var(--border);border-radius:var(--radius);font-size:12.5px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%}
 .svc-input-sm:focus{outline:none;border-color:var(--navy)}
 .svc-select{padding:5px 22px 5px 7px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:white;width:100%;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
@@ -155,7 +163,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="header-logo">ИЯз РАН</div>
   <div style="width:1px;height:24px;background:rgba(255,255,255,.15);margin-right:20px"></div>
   <div class="header-title">Издательский Калькулятор 2026</div>
-  <div class="header-badge">v3.1</div>
+  <div class="header-badge">v3.2</div>
 </div>
 
 <div class="layout">
@@ -231,23 +239,21 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div class="card-title" style="margin:0">Выбор услуг и исполнителей</div>
           <button class="btn btn-outline btn-sm" onclick="addCustomService()">+ Своя услуга</button>
         </div>
-        <div style="overflow-x:auto">
-          <table class="services-table" style="min-width:700px">
-            <thead>
-              <tr>
-                <th style="width:28px;padding-left:20px"></th>
-                <th>Услуга</th>
-                <th style="width:130px">Исполнитель</th>
-                <th style="width:120px">Режим</th>
-                <th style="width:52px;text-align:center">НДФЛ<br>%</th>
-                <th style="width:52px;text-align:center">Взносы<br>%</th>
-                <th style="width:52px;text-align:center">Коэф.</th>
-                <th style="width:96px;text-align:right;padding-right:20px">Ставка, ₽</th>
-              </tr>
-            </thead>
-            <tbody id="services-tbody"></tbody>
-          </table>
-        </div>
+        <table class="services-table" id="services-table">
+          <thead>
+            <tr class="svc-head-row">
+              <th style="width:28px;padding-left:16px"></th>
+              <th>Услуга</th>
+              <th style="width:150px">Исполнитель</th>
+              <th style="width:128px">Режим</th>
+            </tr>
+            <tr class="svc-sub-head-row">
+              <th colspan="2" style="padding-left:44px;color:var(--ink-faint);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;padding-bottom:8px">↳ объём, НДФЛ, взносы, коэф., ставка</th>
+              <th colspan="2" style="padding-bottom:8px"></th>
+            </tr>
+          </thead>
+          <tbody id="services-tbody"></tbody>
+        </table>
       </div>
 
       <div class="btn-row">
@@ -373,6 +379,8 @@ const defaultTariffs = [
   {id:7, name:'Научное редактирование', rate:2500, type:'text', note:''},
   {id:8, name:'Дизайн обложки', rate:4500, type:'fixed', note:'3 000–6 000 ₽'},
   {id:9, name:'Доп. надбавка за финальную проверку качества', rate:3500, type:'fixed', note:'Опционально; 2 000–5 000 ₽'},
+  {id:10, name:'Лингв. ред. англоязычного текста (носитель языка)', rate:11200, type:'text', note:''},
+  {id:11, name:'Лингв. ред. англоязычного текста (русскояз. специалист)', rate:8000, type:'text', note:''},
 ];
 
 function loadTariffs() {
@@ -451,47 +459,107 @@ function onSheetsInput() {
 // ══════════════════════════════════════════════
 //  СПИСОК УСЛУГ
 // ══════════════════════════════════════════════
-function makeSvcRow(id, name, rate, isCustom) {
-  const tr = document.createElement('tr');
-  if (id) tr.dataset.id = id;
-  tr.dataset.custom = isCustom ? '1' : '0';
+function makeSvcRow(id, name, rate, isCustom, tariffType) {
+  const tbody = document.getElementById('services-tbody');
+  const group = document.createElement('tbody');
+  group.className = 'svc-group';
+  if (id) group.dataset.id = id;
+  group.dataset.custom = isCustom ? '1' : '0';
+  group.dataset.ttype = tariffType || 'fixed';
+
   const nameCell = isCustom
-    ? `<input class="svc-custom-name" placeholder="Название услуги" value="${name||''}">` 
+    ? `<input class="svc-custom-name" placeholder="Название услуги" value="${name||''}" style="width:100%">`
     : `<div class="svc-name">${name}</div>`;
-  const numStyle = 'text-align:center;padding:4px 4px';
-  tr.innerHTML = `
+
+  const unitLabel = tariffType === 'text' ? 'у.п.л.' : tariffType === 'pages' ? 'стр.' : 'проект';
+  const volDisabled = tariffType === 'fixed' ? 'disabled style="opacity:0.4"' : '';
+
+  // Row 1: checkbox + name + executor + mode
+  const tr1 = document.createElement('tr');
+  tr1.className = 'svc-row1';
+  tr1.innerHTML = `
     <td><input type="checkbox" class="custom-check svc-check" onchange="onSvcCheck(this)"></td>
-    <td>${nameCell}</td>
-    <td><input class="svc-input-sm svc-executor" placeholder="Исполнитель"></td>
-    <td>
-      <select class="svc-select svc-mode" onchange="onSvcModeChange(this)">
-        <option value="nadba">Надбавка</option>
-        <option value="gph">ГПХ (физлицо)</option>
-        <option value="self">ГПХ (самозанятый)</option>
-      </select>
+    <td colspan="3">
+      <div style="display:grid;grid-template-columns:1fr 150px 128px;gap:8px;align-items:center">
+        <div>${nameCell}</div>
+        <input class="svc-input-sm svc-executor" placeholder="Исполнитель">
+        <select class="svc-select svc-mode" onchange="onSvcModeChange(this)">
+          <option value="nadba">Надбавка</option>
+          <option value="gph">ГПХ (физлицо)</option>
+          <option value="self">ГПХ (самозанятый)</option>
+        </select>
+      </div>
     </td>
-    <td><input class="svc-input-sm svc-ndfl" type="number" value="13" min="0" max="100" style="${numStyle}"></td>
-    <td><input class="svc-input-sm svc-ins" type="number" value="30" min="0" max="100" style="${numStyle}"></td>
-    <td><input class="svc-input-sm svc-coeff" type="number" value="1.0" step="0.1" min="0.5" max="3" style="${numStyle}"></td>
-    <td style="text-align:right"><input class="svc-input-sm svc-rate" type="number" value="${rate||0}" style="text-align:right">${isCustom ? `<button onclick="this.closest('tr').remove()" style="background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:14px;padding:0 2px;margin-left:2px" title="Удалить">✕</button>` : ''}</td>
   `;
-  updateInsField(tr.querySelector('.svc-ins'), 'nadba');
-  return tr;
+
+  // Row 2: volume + ndfl + ins + coeff + rate + delete
+  const tr2 = document.createElement('tr');
+  tr2.className = 'svc-row2';
+  tr2.innerHTML = `
+    <td colspan="4">
+      <div class="svc-row2-inner">
+        <div class="svc-field">
+          <label>Объём (${unitLabel})</label>
+          <div style="display:flex;gap:3px;align-items:center">
+            <input class="svc-input-sm svc-vol" type="number" value="" placeholder="авто" step="0.01" min="0" ${volDisabled}>
+            <button onclick="resetVol(this)" title="Сбросить к общему объёму" style="background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:13px;padding:0;line-height:1;flex-shrink:0" ${tariffType==='fixed'?'disabled':''}>↺</button>
+          </div>
+        </div>
+        <div class="svc-field">
+          <label>НДФЛ %</label>
+          <input class="svc-input-sm svc-ndfl" type="number" value="13" min="0" max="100" style="text-align:center">
+        </div>
+        <div class="svc-field">
+          <label>Взносы %</label>
+          <input class="svc-input-sm svc-ins" type="number" value="30" min="0" max="100" style="text-align:center">
+        </div>
+        <div class="svc-field">
+          <label>Коэф.</label>
+          <input class="svc-input-sm svc-coeff" type="number" value="1.0" step="0.1" min="0.5" max="3" style="text-align:center">
+        </div>
+        <div class="svc-field">
+          <label>Ставка, ₽</label>
+          <input class="svc-input-sm svc-rate" type="number" value="${rate||0}" style="text-align:right">
+        </div>
+        <div style="padding-top:16px">
+          ${isCustom ? `<button onclick="this.closest('.svc-group').remove()" style="background:none;border:none;cursor:pointer;color:var(--ink-faint);font-size:16px;padding:0" title="Удалить">✕</button>` : ''}
+        </div>
+      </div>
+    </td>
+  `;
+
+  group.appendChild(tr1);
+  group.appendChild(tr2);
+  updateInsField(tr2.querySelector('.svc-ins'), 'nadba');
+  return group;
+}
+
+function resetVol(btn) {
+  const group = btn.closest('.svc-group');
+  const ttype = group.dataset.ttype;
+  const sheets = parseFloat(document.getElementById('c-sheets').value) || 0;
+  const pages = parseFloat(document.getElementById('c-pages').value) || 0;
+  const volInput = group.querySelector('.svc-vol');
+  if (ttype === 'text') volInput.value = sheets.toFixed(2);
+  else if (ttype === 'pages') volInput.value = pages;
+  volInput.focus();
 }
 
 function renderServicesList() {
   tariffs = loadTariffs();
-  const tbody = document.getElementById('services-tbody');
-  tbody.innerHTML = '';
-  tariffs.forEach(t => tbody.appendChild(makeSvcRow(t.id, t.name, t.rate, false)));
+  const container = document.getElementById('services-tbody');
+  // clear all svc-group tbodies
+  document.querySelectorAll('.svc-group').forEach(g => g.remove());
+  const table = document.getElementById('services-table');
+  tariffs.forEach(t => table.appendChild(makeSvcRow(t.id, t.name, t.rate, false, t.type)));
 }
 
 function addCustomService() {
-  const tbody = document.getElementById('services-tbody');
-  const tr = makeSvcRow(null, '', 0, true);
-  tbody.appendChild(tr);
-  tr.querySelector('.svc-custom-name').focus();
-  tr.querySelector('.svc-check').checked = true;
+  const table = document.getElementById('services-table');
+  const group = makeSvcRow(null, '', 0, true, 'fixed');
+  table.appendChild(group);
+  group.querySelector('.svc-custom-name').focus();
+  group.querySelector('.svc-check').checked = true;
 }
 
 function onSvcCheck(chk) { /* could highlight row */ }
@@ -534,26 +602,35 @@ function calculate() {
   let totalNet = 0, totalContract = 0;
 
   checks.forEach(chk => {
-    const tr = chk.closest('tr');
-    const isCustom = tr.dataset.custom === '1';
-    const id = parseInt(tr.dataset.id);
+    const group = chk.closest('.svc-group');
+    const isCustom = group.dataset.custom === '1';
+    const id = parseInt(group.dataset.id);
+    const ttype = group.dataset.ttype || 'fixed';
     const t = isCustom ? null : tariffs.find(x => x.id === id);
-    const executor = tr.querySelector('.svc-executor').value.trim() || '—';
-    const mode = tr.querySelector('.svc-mode').value;
-    const ndfl = parseFloat(tr.querySelector('.svc-ndfl').value) || 13;
-    const ins = parseFloat(tr.querySelector('.svc-ins').value) || 0;
-    const coeff = parseFloat(tr.querySelector('.svc-coeff').value) || 1;
-    const rate = parseFloat(tr.querySelector('.svc-rate').value) || (t ? t.rate : 0);
-    const nameEl = tr.querySelector('.svc-custom-name') || tr.querySelector('.svc-name');
-    const rowName = isCustom ? (tr.querySelector('.svc-custom-name').value.trim() || 'Услуга') : t.name;
+    const executor = group.querySelector('.svc-executor').value.trim() || '—';
+    const mode = group.querySelector('.svc-mode').value;
+    const ndfl = parseFloat(group.querySelector('.svc-ndfl').value) || 13;
+    const ins = parseFloat(group.querySelector('.svc-ins').value) || 0;
+    const coeff = parseFloat(group.querySelector('.svc-coeff').value) || 1;
+    const rate = parseFloat(group.querySelector('.svc-rate').value) || (t ? t.rate : 0);
+    const customNameEl = group.querySelector('.svc-custom-name');
+    const rowName = isCustom ? (customNameEl ? customNameEl.value.trim() || 'Услуга' : 'Услуга') : t.name;
 
+    // Per-row volume: use custom if filled, else fall back to project volume
+    const volRaw = group.querySelector('.svc-vol').value;
     let qty, unit;
-    if (!t || t.type === 'fixed') { qty = 1; unit = 'проект'; }
-    else if (t.type === 'text')   { qty = sheets; unit = 'у.п.л.'; }
-    else                          { qty = pages || 1; unit = 'стр.'; }
+    if (ttype === 'fixed') {
+      qty = 1; unit = 'проект';
+    } else if (ttype === 'text') {
+      qty = volRaw !== '' ? parseFloat(volRaw) || 0 : sheets;
+      unit = 'у.п.л.';
+    } else {
+      qty = volRaw !== '' ? parseFloat(volRaw) || 0 : pages || 1;
+      unit = 'стр.';
+    }
 
     const effectiveRate = rate * coeff * complexity;
-    const net = t.type === 'fixed' ? rate * coeff * complexity : effectiveRate * qty;
+    const net = ttype === 'fixed' ? rate * coeff * complexity : effectiveRate * qty;
 
     const tax = calcRowTax(net, mode, ndfl, ins);
 
