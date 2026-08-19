@@ -163,7 +163,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="header-logo">ИЯз РАН</div>
   <div style="width:1px;height:24px;background:rgba(255,255,255,.15);margin-right:20px"></div>
   <div class="header-title">Издательский Калькулятор 2026</div>
-  <div class="header-badge">v3.2</div>
+  <div class="header-badge">v3.3</div>
 </div>
 
 <div class="layout">
@@ -565,11 +565,10 @@ function addCustomService() {
 function onSvcCheck(chk) { /* could highlight row */ }
 
 function onSvcModeChange(sel) {
-  const tr = sel.closest('tr');
+  const group = sel.closest('.svc-group');
   const mode = sel.value;
-  const ndflInput = tr.querySelector('.svc-ndfl');
-  const insInput = tr.querySelector('.svc-ins');
-  // set defaults
+  const ndflInput = group.querySelector('.svc-ndfl');
+  const insInput = group.querySelector('.svc-ins');
   if (mode === 'nadba') { ndflInput.value = 13; }
   else if (mode === 'gph') { ndflInput.value = 13; insInput.value = 30; }
   else if (mode === 'self') { ndflInput.value = 6; insInput.value = 0; }
@@ -602,7 +601,8 @@ function calculate() {
   let totalNet = 0, totalContract = 0;
 
   checks.forEach(chk => {
-    const group = chk.closest('.svc-group');
+    try {
+      const group = chk.closest('.svc-group');
     const isCustom = group.dataset.custom === '1';
     const id = parseInt(group.dataset.id);
     const ttype = group.dataset.ttype || 'fixed';
@@ -637,21 +637,25 @@ function calculate() {
     totalNet += net;
     totalContract += tax.contractCost;
 
-    rows.push({
-      name: rowName,
-      qty: parseFloat(qty.toFixed(2)),
-      unit,
-      rate: effectiveRate,
-      net,
-      executor,
-      mode,
-      ndfl,
-      ins,
-      remuneration: tax.remuneration,
-      ndflAmt: tax.ndflAmt,
-      insAmt: tax.insAmt,
-      contractCost: tax.contractCost,
-    });
+      rows.push({
+        name: rowName,
+        qty: parseFloat(qty.toFixed(2)),
+        unit,
+        rate: effectiveRate,
+        net,
+        executor,
+        mode,
+        ndfl,
+        ins,
+        remuneration: tax.remuneration,
+        ndflAmt: tax.ndflAmt,
+        insAmt: tax.insAmt,
+        contractCost: tax.contractCost,
+      });
+    } catch(e) {
+      console.error('Ошибка в строке услуги:', e);
+      showToast('Ошибка в одной из строк — проверьте данные');
+    }
   });
 
   lastResult = {
@@ -924,11 +928,20 @@ function deleteHistory(i) {
 }
 
 function saveProject() {
-  if (!lastResult) return;
-  const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
-  hist.unshift({...lastResult, savedAt: new Date().toLocaleString('ru-RU')});
-  localStorage.setItem('izdat_history', JSON.stringify(hist.slice(0, 30)));
-  showToast('Проект сохранён в историю');
+  if (!lastResult || !lastResult.rows || !lastResult.rows.length) {
+    showToast('Нет данных для сохранения — сначала выполните расчёт');
+    return;
+  }
+  try {
+    const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
+    const entry = JSON.parse(JSON.stringify({...lastResult, savedAt: new Date().toLocaleString('ru-RU')}));
+    hist.unshift(entry);
+    localStorage.setItem('izdat_history', JSON.stringify(hist.slice(0, 30)));
+    showToast(`Сохранено: «${lastResult.title}» — ${rubFmt(lastResult.totalContract)}`);
+  } catch(e) {
+    console.error('Ошибка сохранения:', e);
+    showToast('Ошибка при сохранении — попробуйте ещё раз');
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -1069,4 +1082,3 @@ if (_saved) { try { lastResult = JSON.parse(_saved); } catch(e) {} }
 </script>
 </body>
 </html>
-
