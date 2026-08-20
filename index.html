@@ -311,7 +311,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <button class="btn btn-gold" onclick="exportXLSX()">↓ Excel (.xlsx)</button>
           <button class="btn btn-outline" onclick="exportCSV()">↓ CSV</button>
           <button class="btn btn-outline" onclick="saveProject()">Сохранить в историю</button>
-          <button class="btn btn-ghost" onclick="showPage('calc')">← Назад к расчёту</button>
+          <button class="btn btn-ghost" onclick="editAndGoBack()">✎ Редактировать расчёт</button>
         </div>
       </div>
     </div>
@@ -1071,6 +1071,77 @@ function exportCSV() {
 // ══════════════════════════════════════════════
 //  ВСПОМОГАТЕЛЬНЫЕ
 // ══════════════════════════════════════════════
+function editAndGoBack() {
+  if (!lastResult) { showPage('calc'); return; }
+  const d = lastResult;
+
+  // — Основные поля —
+  document.getElementById('c-title').value = d.title || '';
+  document.getElementById('c-author').value = d.author || '';
+  document.getElementById('c-year').value = d.year || '2026';
+  document.getElementById('c-complexity').value = d.complexity || 1;
+  document.getElementById('c-chars').value = d.chars || 0;
+  document.getElementById('c-sheets').value = d.sheets ? d.sheets.toFixed(2) : '0.00';
+  document.getElementById('c-pages').value = d.pages || 0;
+
+  // — Сбрасываем таблицу услуг к дефолту —
+  renderServicesList();
+
+  // — Восстанавливаем строки из сохранённого результата —
+  // Сначала пробуем найти совпадение по названию в существующих строках тарифов
+  // Для строк которых нет в тарифах — добавляем как кастомные
+  const table = document.getElementById('services-table');
+
+  d.rows.forEach(savedRow => {
+    // Ищем совпадение среди уже отрендеренных групп
+    let found = null;
+    document.querySelectorAll('.svc-group').forEach(group => {
+      const nameEl = group.querySelector('.svc-name');
+      if (nameEl && nameEl.textContent.trim() === savedRow.name.trim()) {
+        found = group;
+      }
+    });
+
+    // Если не нашли — добавляем как кастомную строку
+    if (!found) {
+      found = makeSvcRow(null, savedRow.name, savedRow.rate, true, 'fixed');
+      table.appendChild(found);
+    }
+
+    // Заполняем поля
+    found.querySelector('.svc-check').checked = true;
+    found.querySelector('.svc-executor').value = savedRow.executor || '';
+
+    const modeEl = found.querySelector('.svc-mode');
+    if (modeEl) { modeEl.value = savedRow.mode || 'nadba'; onSvcModeChange(modeEl); }
+
+    // После onSvcModeChange ставим конкретные значения
+    const ndflEl = found.querySelector('.svc-ndfl');
+    const insEl  = found.querySelector('.svc-ins');
+    const coeffEl = found.querySelector('.svc-coeff');
+    const rateEl  = found.querySelector('.svc-rate');
+    const volEl   = found.querySelector('.svc-vol');
+
+    if (ndflEl)  ndflEl.value  = savedRow.ndfl  ?? 13;
+    if (insEl)   insEl.value   = savedRow.ins   ?? 30;
+    if (coeffEl) coeffEl.value = 1; // коэф уже вложен в ставку после расчёта
+    if (rateEl)  rateEl.value  = savedRow.rate  ? savedRow.rate.toFixed(2) : 0;
+    // Объём: восстанавливаем только если он отличается от общего
+    if (volEl && savedRow.unit !== 'проект') {
+      const projectQty = savedRow.unit === 'у.п.л.'
+        ? (d.sheets || 0)
+        : (d.pages || 0);
+      // если объём строки отличается от проектного — записываем явно
+      if (Math.abs(savedRow.qty - projectQty) > 0.001) {
+        volEl.value = savedRow.qty;
+      }
+    }
+  });
+
+  showPage('calc');
+  showToast('Данные загружены — вносите правки и нажмите «Рассчитать»');
+}
+
 function clearCalcForm() {
   document.getElementById('c-title').value = '';
   document.getElementById('c-author').value = '';
