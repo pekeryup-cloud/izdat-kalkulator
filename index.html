@@ -897,20 +897,29 @@ function renderHistory() {
   const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
   const el = document.getElementById('history-list');
   if (!hist.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">◷</div><div>История расчётов пуста</div></div>`;
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">◷</div><div>История расчётов пуста</div></div>';
     return;
   }
-  el.innerHTML = hist.map((d, i) => `
-    <div class="history-item">
-      <div style="flex:1;min-width:0">
-        <div class="h-title">${d.title}</div>
-        <div class="h-meta">${d.author ? d.author + ' · ' : ''}${d.year} · сохранено ${d.savedAt}</div>
-      </div>
-      <div class="h-amount">${rubFmt(d.totalContract)}</div>
-      <button class="btn btn-outline btn-sm" onclick="loadHistory(${i})">Открыть</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteHistory(${i})" title="Удалить">✕</button>
-    </div>
-  `).join('');
+  try {
+    el.innerHTML = hist.map((d, i) => {
+      const contract = (d.totalContract != null && !isNaN(d.totalContract)) ? d.totalContract : (d.totalNet || 0);
+      const amt = rubFmt(contract);
+      const title = d.title || '(без названия)';
+      const meta = (d.author ? d.author + ' · ' : '') + (d.year || '') + ' · сохранено ' + (d.savedAt || '');
+      return '<div class="history-item">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="h-title">' + title + '</div>' +
+          '<div class="h-meta">' + meta + '</div>' +
+        '</div>' +
+        '<div class="h-amount">' + amt + '</div>' +
+        '<button class="btn btn-outline btn-sm" onclick="loadHistory(' + i + ')">Открыть</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteHistory(' + i + ')" title="Удалить">✕</button>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    console.error('renderHistory error:', e);
+    el.innerHTML = '<div class="empty-state"><div>Ошибка загрузки истории: ' + e.message + '</div></div>';
+  }
 }
 
 function loadHistory(i) {
@@ -929,18 +938,23 @@ function deleteHistory(i) {
 
 function saveProject() {
   if (!lastResult || !lastResult.rows || !lastResult.rows.length) {
-    showToast('Нет данных для сохранения — сначала выполните расчёт');
+    showToast('Нет данных — сначала выполните расчёт');
     return;
   }
   try {
     const hist = JSON.parse(localStorage.getItem('izdat_history') || '[]');
-    const entry = JSON.parse(JSON.stringify({...lastResult, savedAt: new Date().toLocaleString('ru-RU')}));
+    const entry = JSON.parse(JSON.stringify(Object.assign({}, lastResult, {savedAt: new Date().toLocaleString('ru-RU')})));
     hist.unshift(entry);
     localStorage.setItem('izdat_history', JSON.stringify(hist.slice(0, 30)));
-    showToast(`Сохранено: «${lastResult.title}» — ${rubFmt(lastResult.totalContract)}`);
+    const check = JSON.parse(localStorage.getItem('izdat_history') || '[]');
+    if (check.length > 0) {
+      showToast('✓ Сохранено в историю');
+    } else {
+      showToast('Не удалось сохранить — браузер блокирует localStorage');
+    }
   } catch(e) {
     console.error('Ошибка сохранения:', e);
-    showToast('Ошибка при сохранении — попробуйте ещё раз');
+    showToast('Ошибка: ' + e.message);
   }
 }
 
